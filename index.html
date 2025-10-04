@@ -19,25 +19,140 @@
             padding: 20px;
         }
         
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .login-box {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .login-header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.2);
+            color: #fff;
+            font-size: 1em;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #6B4423;
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1em;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #6B4423 0%, #8D6E63 100%);
+            color: white;
+            width: 100%;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(107, 68, 35, 0.4);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .error-message {
+            background: #EF5350;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
         .header {
             background: linear-gradient(135deg, #6B4423 0%, #8D6E63 100%);
             padding: 30px;
             border-radius: 20px;
             margin-bottom: 30px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
         }
         
-        .header h1 {
+        .header-left h1 {
             font-size: 2.5em;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
+        }
+        
+        .header-left p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+        
+        .header-right {
             display: flex;
             align-items: center;
             gap: 15px;
         }
         
-        .header p {
-            opacity: 0.9;
-            font-size: 1.1em;
+        .user-info {
+            text-align: right;
+        }
+        
+        .user-email {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        
+        .btn-logout {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 10px 20px;
+        }
+        
+        .btn-logout:hover {
+            background: rgba(255,255,255,0.3);
         }
         
         .stats {
@@ -93,7 +208,7 @@
             font-weight: 600;
         }
         
-        select, input {
+        select, input[type="text"] {
             padding: 10px 15px;
             border-radius: 8px;
             border: 1px solid rgba(255,255,255,0.3);
@@ -103,28 +218,9 @@
             cursor: pointer;
         }
         
-        select:focus, input:focus {
+        select:focus, input[type="text"]:focus {
             outline: none;
             border-color: #6B4423;
-        }
-        
-        .btn {
-            padding: 10px 20px;
-            border-radius: 8px;
-            border: none;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #6B4423 0%, #8D6E63 100%);
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(107, 68, 35, 0.4);
         }
         
         .pedidos-grid {
@@ -309,7 +405,7 @@
         }
         
         @media (max-width: 768px) {
-            .header h1 {
+            .header-left h1 {
                 font-size: 1.8em;
             }
             
@@ -329,25 +425,56 @@
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>☕ Dashboard de Pedidos</h1>
-        <p>Gestión en tiempo real de pedidos de Café Premium</p>
-    </div>
-
-    <div class="config-panel" id="configPanel">
-        <h3 style="margin-bottom: 15px;">⚙️ Configuración de Supabase</h3>
-        <div class="config-row">
-            <label>URL del Proyecto:</label>
-            <input type="text" id="supabaseUrl" placeholder="https://tu-proyecto.supabase.co">
+    <div id="loginScreen" class="login-container">
+        <div class="login-box">
+            <div class="login-header">
+                <h1>Dashboard de Pedidos</h1>
+                <p>Inicia sesión para continuar</p>
+            </div>
+            
+            <div id="loginError" class="error-message"></div>
+            
+            <div id="configForm">
+                <div class="form-group">
+                    <label>URL del Proyecto Supabase:</label>
+                    <input type="text" id="supabaseUrl" placeholder="https://tu-proyecto.supabase.co">
+                </div>
+                <div class="form-group">
+                    <label>API Key (Anon):</label>
+                    <input type="password" id="supabaseKey" placeholder="Tu API key de Supabase">
+                </div>
+                <button class="btn btn-primary" onclick="guardarConfiguracion()">Guardar Configuración</button>
+                <hr style="margin: 20px 0; border-color: rgba(255,255,255,0.2);">
+            </div>
+            
+            <form id="loginForm" onsubmit="handleLogin(event)" style="display: none;">
+                <div class="form-group">
+                    <label>Email:</label>
+                    <input type="email" id="loginEmail" required placeholder="tu@email.com">
+                </div>
+                <div class="form-group">
+                    <label>Contraseña:</label>
+                    <input type="password" id="loginPassword" required placeholder="Tu contraseña">
+                </div>
+                <button type="submit" class="btn btn-primary" id="loginBtn">Iniciar Sesión</button>
+            </form>
         </div>
-        <div class="config-row">
-            <label>API Key (Anon):</label>
-            <input type="password" id="supabaseKey" placeholder="Tu API key de Supabase">
-        </div>
-        <button class="btn btn-primary" onclick="guardarConfiguracion()">💾 Guardar y Conectar</button>
     </div>
 
     <div id="dashboardContent" style="display: none;">
+        <div class="header">
+            <div class="header-left">
+                <h1>Dashboard de Pedidos</h1>
+                <p>Gestión en tiempo real de pedidos de Café Premium</p>
+            </div>
+            <div class="header-right">
+                <div class="user-info">
+                    <div class="user-email" id="userEmail"></div>
+                </div>
+                <button class="btn btn-logout" onclick="handleLogout()">Cerrar Sesión</button>
+            </div>
+        </div>
+
         <div class="stats" id="stats">
             <div class="stat-card">
                 <div class="stat-label">Total Pedidos</div>
@@ -390,10 +517,10 @@
                 <input type="text" id="buscar" placeholder="Nombre, teléfono..." onkeyup="cargarPedidos()">
             </div>
             
-            <button class="btn btn-primary" onclick="cargarPedidos()">🔄 Actualizar</button>
+            <button class="btn btn-primary" onclick="cargarPedidos()">Actualizar</button>
         </div>
 
-        <div id="loading" class="loading">
+        <div id="loading" class="loading" style="display: none;">
             <div class="spinner"></div>
             <p>Cargando pedidos...</p>
         </div>
@@ -401,25 +528,19 @@
         <div id="pedidosContainer" class="pedidos-grid"></div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        let supabaseUrl = '';
-        let supabaseKey = '';
+        let supabaseClient = null;
+        let currentUser = null;
         let autoRefreshInterval = null;
 
-        function cargarConfiguracion() {
-            const urlGuardada = localStorage.getItem('supabase_url');
-            const keyGuardada = localStorage.getItem('supabase_key');
-            
-            if (urlGuardada && keyGuardada) {
-                supabaseUrl = urlGuardada;
-                supabaseKey = keyGuardada;
-                document.getElementById('supabaseUrl').value = urlGuardada;
-                document.getElementById('supabaseKey').value = keyGuardada;
-                document.getElementById('configPanel').style.display = 'none';
-                document.getElementById('dashboardContent').style.display = 'block';
-                cargarPedidos();
-                iniciarAutoRefresh();
-            }
+        function mostrarError(mensaje) {
+            const errorDiv = document.getElementById('loginError');
+            errorDiv.textContent = mensaje;
+            errorDiv.style.display = 'block';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
         }
 
         function guardarConfiguracion() {
@@ -427,19 +548,66 @@
             const key = document.getElementById('supabaseKey').value.trim();
             
             if (!url || !key) {
-                alert('Por favor completa todos los campos');
+                mostrarError('Por favor completa todos los campos');
                 return;
             }
-            
-            supabaseUrl = url;
-            supabaseKey = key;
             
             localStorage.setItem('supabase_url', url);
             localStorage.setItem('supabase_key', key);
             
-            document.getElementById('configPanel').style.display = 'none';
-            document.getElementById('dashboardContent').style.display = 'block';
+            supabaseClient = supabase.createClient(url, key);
             
+            document.getElementById('configForm').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'block';
+        }
+
+        async function handleLogin(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const loginBtn = document.getElementById('loginBtn');
+            
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Iniciando sesión...';
+            
+            try {
+                const { data, error } = await supabaseClient.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+                
+                if (error) throw error;
+                
+                currentUser = data.user;
+                mostrarDashboard();
+                
+            } catch (error) {
+                console.error('Error de login:', error);
+                mostrarError(error.message || 'Error al iniciar sesión');
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Iniciar Sesión';
+            }
+        }
+
+        async function handleLogout() {
+            try {
+                await supabaseClient.auth.signOut();
+                currentUser = null;
+                if (autoRefreshInterval) clearInterval(autoRefreshInterval);
+                document.getElementById('loginScreen').style.display = 'flex';
+                document.getElementById('dashboardContent').style.display = 'none';
+                document.getElementById('loginForm').reset();
+            } catch (error) {
+                console.error('Error al cerrar sesión:', error);
+            }
+        }
+
+        function mostrarDashboard() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('dashboardContent').style.display = 'block';
+            document.getElementById('userEmail').textContent = currentUser.email;
             cargarPedidos();
             iniciarAutoRefresh();
         }
@@ -450,42 +618,44 @@
         }
 
         async function cargarPedidos() {
-            if (!supabaseUrl || !supabaseKey) return;
+            if (!supabaseClient || !currentUser) return;
             
             const filtroEstado = document.getElementById('filtroEstado').value;
             const buscar = document.getElementById('buscar').value.toLowerCase();
             
+            document.getElementById('loading').style.display = 'block';
+            
             try {
-                let url = `${supabaseUrl}/rest/v1/pedidos?select=*&order=fecha_pedido.desc`;
+                let query = supabaseClient
+                    .from('pedidos')
+                    .select('*')
+                    .order('fecha_pedido', { ascending: false });
                 
                 if (filtroEstado) {
-                    url += `&estado=eq.${filtroEstado}`;
+                    query = query.eq('estado', filtroEstado);
                 }
                 
-                const response = await fetch(url, {
-                    headers: {
-                        'apikey': supabaseKey,
-                        'Authorization': `Bearer ${supabaseKey}`
-                    }
-                });
+                const { data: pedidos, error } = await query;
                 
-                if (!response.ok) throw new Error('Error al cargar pedidos');
+                if (error) throw error;
                 
-                let pedidos = await response.json();
+                let pedidosFiltrados = pedidos;
                 
                 if (buscar) {
-                    pedidos = pedidos.filter(p => 
+                    pedidosFiltrados = pedidos.filter(p => 
                         p.nombre_cliente.toLowerCase().includes(buscar) ||
                         p.telefono_cliente.includes(buscar)
                     );
                 }
                 
-                actualizarEstadisticas(pedidos);
-                mostrarPedidos(pedidos);
+                actualizarEstadisticas(pedidosFiltrados);
+                mostrarPedidos(pedidosFiltrados);
                 
             } catch (error) {
                 console.error('Error:', error);
-                alert('Error al cargar los pedidos. Verifica tu configuración.');
+                mostrarError('Error al cargar los pedidos: ' + error.message);
+            } finally {
+                document.getElementById('loading').style.display = 'none';
             }
         }
 
@@ -508,7 +678,6 @@
 
         function mostrarPedidos(pedidos) {
             const container = document.getElementById('pedidosContainer');
-            document.getElementById('loading').style.display = 'none';
             
             if (pedidos.length === 0) {
                 container.innerHTML = `
@@ -533,27 +702,27 @@
                     
                     <div class="cliente-info">
                         <div class="info-row">
-                            <span class="info-label">👤 Cliente:</span>
+                            <span class="info-label">Cliente:</span>
                             <span>${pedido.nombre_cliente}</span>
                         </div>
                         <div class="info-row">
-                            <span class="info-label">📞 Teléfono:</span>
+                            <span class="info-label">Teléfono:</span>
                             <span>${pedido.telefono_cliente}</span>
                         </div>
                         ${pedido.email_cliente ? `
                         <div class="info-row">
-                            <span class="info-label">📧 Email:</span>
+                            <span class="info-label">Email:</span>
                             <span>${pedido.email_cliente}</span>
                         </div>
                         ` : ''}
                         <div class="info-row">
-                            <span class="info-label">📍 Dirección:</span>
+                            <span class="info-label">Dirección:</span>
                             <span>${pedido.direccion}</span>
                         </div>
                     </div>
                     
                     <div class="productos-list">
-                        <strong>📦 Productos (${pedido.cantidad_items} items):</strong>
+                        <strong>Productos (${pedido.cantidad_items} items):</strong>
                         ${pedido.productos.map(prod => `
                             <div class="producto-item">
                                 ${prod.cantidad}x ${prod.producto} - S/ ${prod.subtotal.toFixed(2)}
@@ -584,12 +753,12 @@
 
         function generarBotonesAccion(pedido) {
             const acciones = {
-                'pendiente': '<button class="btn-accion btn-confirmar" onclick="actualizarEstado(\'' + pedido.id + '\', \'confirmado\')">✓ Confirmar</button><button class="btn-accion btn-cancelar" onclick="actualizarEstado(\'' + pedido.id + '\', \'cancelado\')">✕ Cancelar</button>',
-                'confirmado': '<button class="btn-accion btn-preparar" onclick="actualizarEstado(\'' + pedido.id + '\', \'en_preparacion\')">🔧 Preparar</button>',
-                'en_preparacion': '<button class="btn-accion btn-enviar" onclick="actualizarEstado(\'' + pedido.id + '\', \'enviado\')">🚚 Enviar</button>',
-                'enviado': '<button class="btn-accion btn-entregar" onclick="actualizarEstado(\'' + pedido.id + '\', \'entregado\')">✓ Entregar</button>',
-                'entregado': '<span style="color: #66BB6A;">✓ Pedido completado</span>',
-                'cancelado': '<span style="color: #EF5350;">✕ Pedido cancelado</span>'
+                'pendiente': '<button class="btn-accion btn-confirmar" onclick="actualizarEstado(\'' + pedido.id + '\', \'confirmado\')">Confirmar</button><button class="btn-accion btn-cancelar" onclick="actualizarEstado(\'' + pedido.id + '\', \'cancelado\')">Cancelar</button>',
+                'confirmado': '<button class="btn-accion btn-preparar" onclick="actualizarEstado(\'' + pedido.id + '\', \'en_preparacion\')">Preparar</button>',
+                'en_preparacion': '<button class="btn-accion btn-enviar" onclick="actualizarEstado(\'' + pedido.id + '\', \'enviado\')">Enviar</button>',
+                'enviado': '<button class="btn-accion btn-entregar" onclick="actualizarEstado(\'' + pedido.id + '\', \'entregado\')">Entregar</button>',
+                'entregado': '<span style="color: #66BB6A;">Pedido completado</span>',
+                'cancelado': '<span style="color: #EF5350;">Pedido cancelado</span>'
             };
             return acciones[pedido.estado] || '';
         }
@@ -598,31 +767,47 @@
             if (!confirm(`¿Cambiar estado a ${formatearEstado(nuevoEstado)}?`)) return;
             
             try {
-                const response = await fetch(`${supabaseUrl}/rest/v1/pedidos?id=eq.${pedidoId}`, {
-                    method: 'PATCH',
-                    headers: {
-                        'apikey': supabaseKey,
-                        'Authorization': `Bearer ${supabaseKey}`,
-                        'Content-Type': 'application/json',
-                        'Prefer': 'return=minimal'
-                    },
-                    body: JSON.stringify({
+                const { error } = await supabaseClient
+                    .from('pedidos')
+                    .update({
                         estado: nuevoEstado,
                         updated_at: new Date().toISOString()
                     })
-                });
+                    .eq('id', pedidoId);
                 
-                if (!response.ok) throw new Error('Error al actualizar');
+                if (error) throw error;
                 
                 cargarPedidos();
                 
             } catch (error) {
                 console.error('Error:', error);
-                alert('Error al actualizar el estado del pedido');
+                mostrarError('Error al actualizar el estado: ' + error.message);
             }
         }
 
-        cargarConfiguracion();
+        async function inicializarApp() {
+            const urlGuardada = localStorage.getItem('supabase_url');
+            const keyGuardada = localStorage.getItem('supabase_key');
+            
+            if (urlGuardada && keyGuardada) {
+                document.getElementById('supabaseUrl').value = urlGuardada;
+                document.getElementById('supabaseKey').value = keyGuardada;
+                
+                supabaseClient = supabase.createClient(urlGuardada, keyGuardada);
+                
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                
+                if (session) {
+                    currentUser = session.user;
+                    mostrarDashboard();
+                } else {
+                    document.getElementById('configForm').style.display = 'none';
+                    document.getElementById('loginForm').style.display = 'block';
+                }
+            }
+        }
+
+        inicializarApp();
     </script>
 </body>
 </html>
