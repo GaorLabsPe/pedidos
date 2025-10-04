@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Pedidos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            min-height: 100vh;
+            color: #fff;
+            padding: 20px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #6B4423 0%, #8D6E63 100%);
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: transform 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-bottom: 10px;
+        }
+        
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+        
+        .filters {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .filter-group label {
+            font-weight: 600;
+        }
+        
+        select, input {
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.2);
+            color: #fff;
+            font-size: 1em;
+            cursor: pointer;
+        }
+        
+        select:focus, input:focus {
+            outline: none;
+            border-color: #6B4423;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #6B4423 0%, #8D6E63 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(107, 68, 35, 0.4);
+        }
+        
+        .pedidos-grid {
+            display: grid;
+            gap: 20px;
+        }
+        
+        .pedido-card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.3s;
+        }
+        
+        .pedido-card:hover {
+            border-color: #6B4423;
+            box-shadow: 0 10px 30px rgba(107, 68, 35, 0.3);
+        }
+        
+        .pedido-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .pedido-id {
+            font-size: 0.9em;
+            opacity: 0.7;
+        }
+        
+        .pedido-fecha {
+            font-size: 0.95em;
+            opacity: 0.8;
+        }
+        
+        .badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .badge-pendiente { background: #FFA726; color: #000; }
+        .badge-confirmado { background: #42A5F5; color: #fff; }
+        .badge-en_preparacion { background: #AB47BC; color: #fff; }
+        .badge-enviado { background: #26C6DA; color: #000; }
+        .badge-entregado { background: #66BB6A; color: #fff; }
+        .badge-cancelado { background: #EF5350; color: #fff; }
+        
+        .cliente-info {
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .info-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            min-width: 80px;
+        }
+        
+        .productos-list {
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .producto-item {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .producto-item:last-child {
+            border-bottom: none;
+        }
+        
+        .pedido-total {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #66BB6A;
+            text-align: right;
+            margin-top: 15px;
+        }
+        
+        .acciones {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .btn-accion {
+            padding: 8px 15px;
+            border-radius: 8px;
+            border: none;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        
+        .btn-confirmar { background: #42A5F5; color: #fff; }
+        .btn-preparar { background: #AB47BC; color: #fff; }
+        .btn-enviar { background: #26C6DA; color: #000; }
+        .btn-entregar { background: #66BB6A; color: #fff; }
+        .btn-cancelar { background: #EF5350; color: #fff; }
+        
+        .btn-accion:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2em;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top: 4px solid #6B4423;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            opacity: 0.6;
+        }
+        
+        .empty-state-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+        
+        .config-panel {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .config-row {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 15px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+        
+        .config-row label {
+            font-weight: 600;
+        }
+        
+        .config-row input {
+            width: 100%;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .config-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>☕ Dashboard de Pedidos</h1>
+        <p>Gestión en tiempo real de pedidos de Café Premium</p>
+    </div>
+
+    <div class="config-panel" id="configPanel">
+        <h3 style="margin-bottom: 15px;">⚙️ Configuración de Supabase</h3>
+        <div class="config-row">
+            <label>URL del Proyecto:</label>
+            <input type="text" id="supabaseUrl" placeholder="https://tu-proyecto.supabase.co">
+        </div>
+        <div class="config-row">
+            <label>API Key (Anon):</label>
+            <input type="password" id="supabaseKey" placeholder="Tu API key de Supabase">
+        </div>
+        <button class="btn btn-primary" onclick="guardarConfiguracion()">💾 Guardar y Conectar</button>
+    </div>
+
+    <div id="dashboardContent" style="display: none;">
+        <div class="stats" id="stats">
+            <div class="stat-card">
+                <div class="stat-label">Total Pedidos</div>
+                <div class="stat-value" id="totalPedidos">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Pendientes</div>
+                <div class="stat-value" id="pendientes">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">En Proceso</div>
+                <div class="stat-value" id="enProceso">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Completados</div>
+                <div class="stat-value" id="completados">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Ventas Hoy</div>
+                <div class="stat-value" id="ventasHoy">S/ 0</div>
+            </div>
+        </div>
+
+        <div class="filters">
+            <div class="filter-group">
+                <label>Estado:</label>
+                <select id="filtroEstado" onchange="cargarPedidos()">
+                    <option value="">Todos</option>
+                    <option value="pendiente">Pendiente</option>
+                    <option value="confirmado">Confirmado</option>
+                    <option value="en_preparacion">En Preparación</option>
+                    <option value="enviado">Enviado</option>
+                    <option value="entregado">Entregado</option>
+                    <option value="cancelado">Cancelado</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label>Buscar:</label>
+                <input type="text" id="buscar" placeholder="Nombre, teléfono..." onkeyup="cargarPedidos()">
+            </div>
+            
+            <button class="btn btn-primary" onclick="cargarPedidos()">🔄 Actualizar</button>
+        </div>
+
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Cargando pedidos...</p>
+        </div>
+
+        <div id="pedidosContainer" class="pedidos-grid"></div>
+    </div>
+
+    <script>
+        let supabaseUrl = '';
+        let supabaseKey = '';
+        let autoRefreshInterval = null;
+
+        function cargarConfiguracion() {
+            const urlGuardada = localStorage.getItem('supabase_url');
+            const keyGuardada = localStorage.getItem('supabase_key');
+            
+            if (urlGuardada && keyGuardada) {
+                supabaseUrl = urlGuardada;
+                supabaseKey = keyGuardada;
+                document.getElementById('supabaseUrl').value = urlGuardada;
+                document.getElementById('supabaseKey').value = keyGuardada;
+                document.getElementById('configPanel').style.display = 'none';
+                document.getElementById('dashboardContent').style.display = 'block';
+                cargarPedidos();
+                iniciarAutoRefresh();
+            }
+        }
+
+        function guardarConfiguracion() {
+            const url = document.getElementById('supabaseUrl').value.trim();
+            const key = document.getElementById('supabaseKey').value.trim();
+            
+            if (!url || !key) {
+                alert('Por favor completa todos los campos');
+                return;
+            }
+            
+            supabaseUrl = url;
+            supabaseKey = key;
+            
+            localStorage.setItem('supabase_url', url);
+            localStorage.setItem('supabase_key', key);
+            
+            document.getElementById('configPanel').style.display = 'none';
+            document.getElementById('dashboardContent').style.display = 'block';
+            
+            cargarPedidos();
+            iniciarAutoRefresh();
+        }
+
+        function iniciarAutoRefresh() {
+            if (autoRefreshInterval) clearInterval(autoRefreshInterval);
+            autoRefreshInterval = setInterval(cargarPedidos, 30000);
+        }
+
+        async function cargarPedidos() {
+            if (!supabaseUrl || !supabaseKey) return;
+            
+            const filtroEstado = document.getElementById('filtroEstado').value;
+            const buscar = document.getElementById('buscar').value.toLowerCase();
+            
+            try {
+                let url = `${supabaseUrl}/rest/v1/pedidos?select=*&order=fecha_pedido.desc`;
+                
+                if (filtroEstado) {
+                    url += `&estado=eq.${filtroEstado}`;
+                }
+                
+                const response = await fetch(url, {
+                    headers: {
+                        'apikey': supabaseKey,
+                        'Authorization': `Bearer ${supabaseKey}`
+                    }
+                });
+                
+                if (!response.ok) throw new Error('Error al cargar pedidos');
+                
+                let pedidos = await response.json();
+                
+                if (buscar) {
+                    pedidos = pedidos.filter(p => 
+                        p.nombre_cliente.toLowerCase().includes(buscar) ||
+                        p.telefono_cliente.includes(buscar)
+                    );
+                }
+                
+                actualizarEstadisticas(pedidos);
+                mostrarPedidos(pedidos);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al cargar los pedidos. Verifica tu configuración.');
+            }
+        }
+
+        function actualizarEstadisticas(pedidos) {
+            const hoy = new Date().toISOString().split('T')[0];
+            
+            document.getElementById('totalPedidos').textContent = pedidos.length;
+            document.getElementById('pendientes').textContent = 
+                pedidos.filter(p => p.estado === 'pendiente').length;
+            document.getElementById('enProceso').textContent = 
+                pedidos.filter(p => ['confirmado', 'en_preparacion', 'enviado'].includes(p.estado)).length;
+            document.getElementById('completados').textContent = 
+                pedidos.filter(p => p.estado === 'entregado').length;
+            
+            const ventasHoy = pedidos
+                .filter(p => p.fecha_pedido.startsWith(hoy) && p.estado !== 'cancelado')
+                .reduce((sum, p) => sum + parseFloat(p.total), 0);
+            document.getElementById('ventasHoy').textContent = `S/ ${ventasHoy.toFixed(2)}`;
+        }
+
+        function mostrarPedidos(pedidos) {
+            const container = document.getElementById('pedidosContainer');
+            document.getElementById('loading').style.display = 'none';
+            
+            if (pedidos.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📦</div>
+                        <h3>No hay pedidos</h3>
+                        <p>Los nuevos pedidos aparecerán aquí</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = pedidos.map(pedido => `
+                <div class="pedido-card">
+                    <div class="pedido-header">
+                        <div>
+                            <div class="pedido-id">Pedido #${pedido.id.substring(0, 8)}</div>
+                            <div class="pedido-fecha">${new Date(pedido.fecha_pedido).toLocaleString('es-PE')}</div>
+                        </div>
+                        <span class="badge badge-${pedido.estado}">${formatearEstado(pedido.estado)}</span>
+                    </div>
+                    
+                    <div class="cliente-info">
+                        <div class="info-row">
+                            <span class="info-label">👤 Cliente:</span>
+                            <span>${pedido.nombre_cliente}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">📞 Teléfono:</span>
+                            <span>${pedido.telefono_cliente}</span>
+                        </div>
+                        ${pedido.email_cliente ? `
+                        <div class="info-row">
+                            <span class="info-label">📧 Email:</span>
+                            <span>${pedido.email_cliente}</span>
+                        </div>
+                        ` : ''}
+                        <div class="info-row">
+                            <span class="info-label">📍 Dirección:</span>
+                            <span>${pedido.direccion}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="productos-list">
+                        <strong>📦 Productos (${pedido.cantidad_items} items):</strong>
+                        ${pedido.productos.map(prod => `
+                            <div class="producto-item">
+                                ${prod.cantidad}x ${prod.producto} - S/ ${prod.subtotal.toFixed(2)}
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <div class="pedido-total">Total: S/ ${parseFloat(pedido.total).toFixed(2)}</div>
+                    
+                    <div class="acciones">
+                        ${generarBotonesAccion(pedido)}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function formatearEstado(estado) {
+            const estados = {
+                'pendiente': 'Pendiente',
+                'confirmado': 'Confirmado',
+                'en_preparacion': 'En Preparación',
+                'enviado': 'Enviado',
+                'entregado': 'Entregado',
+                'cancelado': 'Cancelado'
+            };
+            return estados[estado] || estado;
+        }
+
+        function generarBotonesAccion(pedido) {
+            const acciones = {
+                'pendiente': '<button class="btn-accion btn-confirmar" onclick="actualizarEstado(\'' + pedido.id + '\', \'confirmado\')">✓ Confirmar</button><button class="btn-accion btn-cancelar" onclick="actualizarEstado(\'' + pedido.id + '\', \'cancelado\')">✕ Cancelar</button>',
+                'confirmado': '<button class="btn-accion btn-preparar" onclick="actualizarEstado(\'' + pedido.id + '\', \'en_preparacion\')">🔧 Preparar</button>',
+                'en_preparacion': '<button class="btn-accion btn-enviar" onclick="actualizarEstado(\'' + pedido.id + '\', \'enviado\')">🚚 Enviar</button>',
+                'enviado': '<button class="btn-accion btn-entregar" onclick="actualizarEstado(\'' + pedido.id + '\', \'entregado\')">✓ Entregar</button>',
+                'entregado': '<span style="color: #66BB6A;">✓ Pedido completado</span>',
+                'cancelado': '<span style="color: #EF5350;">✕ Pedido cancelado</span>'
+            };
+            return acciones[pedido.estado] || '';
+        }
+
+        async function actualizarEstado(pedidoId, nuevoEstado) {
+            if (!confirm(`¿Cambiar estado a ${formatearEstado(nuevoEstado)}?`)) return;
+            
+            try {
+                const response = await fetch(`${supabaseUrl}/rest/v1/pedidos?id=eq.${pedidoId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'apikey': supabaseKey,
+                        'Authorization': `Bearer ${supabaseKey}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify({
+                        estado: nuevoEstado,
+                        updated_at: new Date().toISOString()
+                    })
+                });
+                
+                if (!response.ok) throw new Error('Error al actualizar');
+                
+                cargarPedidos();
+                
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al actualizar el estado del pedido');
+            }
+        }
+
+        cargarConfiguracion();
+    </script>
+</body>
+</html>
