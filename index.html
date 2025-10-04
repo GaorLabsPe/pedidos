@@ -252,8 +252,9 @@
         }
         
         .pedido-id {
-            font-size: 0.9em;
-            opacity: 0.7;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #FFA726;
         }
         
         .pedido-fecha {
@@ -270,8 +271,8 @@
             letter-spacing: 0.5px;
         }
         
-        .badge-pendiente { background: #FFA726; color: #000; }
-        .badge-confirmado { background: #42A5F5; color: #fff; }
+        .badge-pendiente_pago { background: #FF9800; color: #000; }
+        .badge-pago_confirmado { background: #42A5F5; color: #fff; }
         .badge-en_preparacion { background: #AB47BC; color: #fff; }
         .badge-enviado { background: #26C6DA; color: #000; }
         .badge-entregado { background: #66BB6A; color: #fff; }
@@ -320,6 +321,21 @@
             margin-top: 15px;
         }
         
+        .alerta-pago {
+            background: rgba(255, 152, 0, 0.2);
+            border: 2px solid #FF9800;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .alerta-pago-icon {
+            font-size: 1.5em;
+        }
+        
         .acciones {
             display: flex;
             gap: 10px;
@@ -337,7 +353,7 @@
             font-weight: 600;
         }
         
-        .btn-confirmar { background: #42A5F5; color: #fff; }
+        .btn-confirmar-pago { background: #4CAF50; color: #fff; }
         .btn-preparar { background: #AB47BC; color: #fff; }
         .btn-enviar { background: #26C6DA; color: #000; }
         .btn-entregar { background: #66BB6A; color: #fff; }
@@ -380,30 +396,6 @@
             margin-bottom: 20px;
         }
         
-        .config-panel {
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-        }
-        
-        .config-row {
-            display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 15px;
-            margin-bottom: 15px;
-            align-items: center;
-        }
-        
-        .config-row label {
-            font-weight: 600;
-        }
-        
-        .config-row input {
-            width: 100%;
-        }
-        
         @media (max-width: 768px) {
             .header-left h1 {
                 font-size: 1.8em;
@@ -417,10 +409,6 @@
                 flex-direction: column;
                 align-items: stretch;
             }
-            
-            .config-row {
-                grid-template-columns: 1fr;
-            }
         }
     </style>
 </head>
@@ -429,7 +417,7 @@
         <div class="login-box">
             <div class="login-header">
                 <h1>Dashboard de Pedidos</h1>
-                <p>Inicia sesión para continuar</p>
+                <p>Inicia sesion para continuar</p>
             </div>
             
             <div id="loginError" class="error-message"></div>
@@ -443,7 +431,7 @@
                     <label>API Key (Anon):</label>
                     <input type="password" id="supabaseKey" placeholder="Tu API key de Supabase">
                 </div>
-                <button class="btn btn-primary" onclick="guardarConfiguracion()">Guardar Configuración</button>
+                <button class="btn btn-primary" onclick="guardarConfiguracion()">Guardar Configuracion</button>
                 <hr style="margin: 20px 0; border-color: rgba(255,255,255,0.2);">
             </div>
             
@@ -453,10 +441,10 @@
                     <input type="email" id="loginEmail" required placeholder="tu@email.com">
                 </div>
                 <div class="form-group">
-                    <label>Contraseña:</label>
-                    <input type="password" id="loginPassword" required placeholder="Tu contraseña">
+                    <label>Contrasena:</label>
+                    <input type="password" id="loginPassword" required placeholder="Tu contrasena">
                 </div>
-                <button type="submit" class="btn btn-primary" id="loginBtn">Iniciar Sesión</button>
+                <button type="submit" class="btn btn-primary" id="loginBtn">Iniciar Sesion</button>
             </form>
         </div>
     </div>
@@ -465,13 +453,13 @@
         <div class="header">
             <div class="header-left">
                 <h1>Dashboard de Pedidos</h1>
-                <p>Gestión en tiempo real de pedidos de Café Premium</p>
+                <p>Gestion en tiempo real de pedidos de Cafe Premium</p>
             </div>
             <div class="header-right">
                 <div class="user-info">
                     <div class="user-email" id="userEmail"></div>
                 </div>
-                <button class="btn btn-logout" onclick="handleLogout()">Cerrar Sesión</button>
+                <button class="btn btn-logout" onclick="handleLogout()">Cerrar Sesion</button>
             </div>
         </div>
 
@@ -481,8 +469,8 @@
                 <div class="stat-value" id="totalPedidos">0</div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">Pendientes</div>
-                <div class="stat-value" id="pendientes">0</div>
+                <div class="stat-label">Esperando Pago</div>
+                <div class="stat-value" id="esperandoPago">0</div>
             </div>
             <div class="stat-card">
                 <div class="stat-label">En Proceso</div>
@@ -503,9 +491,9 @@
                 <label>Estado:</label>
                 <select id="filtroEstado" onchange="cargarPedidos()">
                     <option value="">Todos</option>
-                    <option value="pendiente">Pendiente</option>
-                    <option value="confirmado">Confirmado</option>
-                    <option value="en_preparacion">En Preparación</option>
+                    <option value="pendiente_pago">Esperando Pago</option>
+                    <option value="pago_confirmado">Pago Confirmado</option>
+                    <option value="en_preparacion">En Preparacion</option>
                     <option value="enviado">Enviado</option>
                     <option value="entregado">Entregado</option>
                     <option value="cancelado">Cancelado</option>
@@ -514,7 +502,7 @@
             
             <div class="filter-group">
                 <label>Buscar:</label>
-                <input type="text" id="buscar" placeholder="Nombre, teléfono..." onkeyup="cargarPedidos()">
+                <input type="text" id="buscar" placeholder="Nombre, telefono, numero pedido..." onkeyup="cargarPedidos()">
             </div>
             
             <button class="btn btn-primary" onclick="cargarPedidos()">Actualizar</button>
@@ -569,7 +557,7 @@
             const loginBtn = document.getElementById('loginBtn');
             
             loginBtn.disabled = true;
-            loginBtn.textContent = 'Iniciando sesión...';
+            loginBtn.textContent = 'Iniciando sesion...';
             
             try {
                 const { data, error } = await supabaseClient.auth.signInWithPassword({
@@ -584,10 +572,10 @@
                 
             } catch (error) {
                 console.error('Error de login:', error);
-                mostrarError(error.message || 'Error al iniciar sesión');
+                mostrarError(error.message || 'Error al iniciar sesion');
             } finally {
                 loginBtn.disabled = false;
-                loginBtn.textContent = 'Iniciar Sesión';
+                loginBtn.textContent = 'Iniciar Sesion';
             }
         }
 
@@ -600,7 +588,7 @@
                 document.getElementById('dashboardContent').style.display = 'none';
                 document.getElementById('loginForm').reset();
             } catch (error) {
-                console.error('Error al cerrar sesión:', error);
+                console.error('Error al cerrar sesion:', error);
             }
         }
 
@@ -644,9 +632,19 @@
                 if (buscar) {
                     pedidosFiltrados = pedidos.filter(p => 
                         p.nombre_cliente.toLowerCase().includes(buscar) ||
-                        p.telefono_cliente.includes(buscar)
+                        p.telefono_cliente.includes(buscar) ||
+                        (p.numero_pedido && p.numero_pedido.toLowerCase().includes(buscar))
                     );
                 }
+                
+                // DEBUG: Ver datos de pedidos
+                console.log("📦 Pedidos cargados:", pedidosFiltrados);
+                pedidosFiltrados.forEach(p => {
+                    console.log(`Pedido ${p.id}:`, { 
+                        numero_pedido: p.numero_pedido,
+                        estado: p.estado
+                    });
+                });
                 
                 actualizarEstadisticas(pedidosFiltrados);
                 mostrarPedidos(pedidosFiltrados);
@@ -663,10 +661,10 @@
             const hoy = new Date().toISOString().split('T')[0];
             
             document.getElementById('totalPedidos').textContent = pedidos.length;
-            document.getElementById('pendientes').textContent = 
-                pedidos.filter(p => p.estado === 'pendiente').length;
+            document.getElementById('esperandoPago').textContent = 
+                pedidos.filter(p => p.estado === 'pendiente_pago').length;
             document.getElementById('enProceso').textContent = 
-                pedidos.filter(p => ['confirmado', 'en_preparacion', 'enviado'].includes(p.estado)).length;
+                pedidos.filter(p => ['pago_confirmado', 'en_preparacion', 'enviado'].includes(p.estado)).length;
             document.getElementById('completados').textContent = 
                 pedidos.filter(p => p.estado === 'entregado').length;
             
@@ -684,7 +682,7 @@
                     <div class="empty-state">
                         <div class="empty-state-icon">📦</div>
                         <h3>No hay pedidos</h3>
-                        <p>Los nuevos pedidos aparecerán aquí</p>
+                        <p>Los nuevos pedidos apareceran aqui</p>
                     </div>
                 `;
                 return;
@@ -694,11 +692,24 @@
                 <div class="pedido-card">
                     <div class="pedido-header">
                         <div>
-                            <div class="pedido-id">Pedido #${pedido.id.substring(0, 8)}</div>
+                            <div class="pedido-id">
+                                ${pedido.numero_pedido ? pedido.numero_pedido : 'Pedido #' + pedido.id.substring(0, 8)}
+                                ${!pedido.numero_pedido ? '<small style="opacity: 0.6; display: block; font-size: 0.8em;">(Sin número asignado)</small>' : ''}
+                            </div>
                             <div class="pedido-fecha">${new Date(pedido.fecha_pedido).toLocaleString('es-PE')}</div>
                         </div>
                         <span class="badge badge-${pedido.estado}">${formatearEstado(pedido.estado)}</span>
                     </div>
+                    
+                    ${pedido.estado === 'pendiente_pago' ? `
+                    <div class="alerta-pago">
+                        <div class="alerta-pago-icon">💰</div>
+                        <div>
+                            <strong>Esperando confirmacion de pago</strong><br>
+                            <small>El cliente debe enviar comprobante de pago</small>
+                        </div>
+                    </div>
+                    ` : ''}
                     
                     <div class="cliente-info">
                         <div class="info-row">
@@ -706,7 +717,7 @@
                             <span>${pedido.nombre_cliente}</span>
                         </div>
                         <div class="info-row">
-                            <span class="info-label">Teléfono:</span>
+                            <span class="info-label">Telefono:</span>
                             <span>${pedido.telefono_cliente}</span>
                         </div>
                         ${pedido.email_cliente ? `
@@ -716,7 +727,7 @@
                         </div>
                         ` : ''}
                         <div class="info-row">
-                            <span class="info-label">Dirección:</span>
+                            <span class="info-label">Direccion:</span>
                             <span>${pedido.direccion}</span>
                         </div>
                     </div>
@@ -741,37 +752,59 @@
 
         function formatearEstado(estado) {
             const estados = {
-                'pendiente': 'Pendiente',
-                'confirmado': 'Confirmado',
+                'pendiente_pago': 'Esperando Pago',
+                'pago_confirmado': 'Pago Confirmado',
                 'en_preparacion': 'En Preparación',
                 'enviado': 'Enviado',
                 'entregado': 'Entregado',
                 'cancelado': 'Cancelado'
             };
-            return estados[estado] || estado;
+            // Convertir a minúsculas para manejar PENDIENTE_PAGO, etc.
+            return estados[estado.toLowerCase()] || estado;
         }
 
         function generarBotonesAccion(pedido) {
             const acciones = {
-                'pendiente': '<button class="btn-accion btn-confirmar" onclick="actualizarEstado(\'' + pedido.id + '\', \'confirmado\')">Confirmar</button><button class="btn-accion btn-cancelar" onclick="actualizarEstado(\'' + pedido.id + '\', \'cancelado\')">Cancelar</button>',
-                'confirmado': '<button class="btn-accion btn-preparar" onclick="actualizarEstado(\'' + pedido.id + '\', \'en_preparacion\')">Preparar</button>',
-                'en_preparacion': '<button class="btn-accion btn-enviar" onclick="actualizarEstado(\'' + pedido.id + '\', \'enviado\')">Enviar</button>',
-                'enviado': '<button class="btn-accion btn-entregar" onclick="actualizarEstado(\'' + pedido.id + '\', \'entregado\')">Entregar</button>',
+                'pendiente_pago': '<button class="btn-accion btn-confirmar-pago" onclick="confirmarPago(\'' + pedido.id + '\', \'' + pedido.numero_pedido + '\')">Confirmar Pago</button><button class="btn-accion btn-cancelar" onclick="actualizarEstado(\'' + pedido.id + '\', \'cancelado\')">Cancelar</button>',
+                'pago_confirmado': '<button class="btn-accion btn-preparar" onclick="actualizarEstado(\'' + pedido.id + '\', \'en_preparacion\')">Preparar Pedido</button>',
+                'en_preparacion': '<button class="btn-accion btn-enviar" onclick="actualizarEstado(\'' + pedido.id + '\', \'enviado\')">Enviar Pedido</button>',
+                'enviado': '<button class="btn-accion btn-entregar" onclick="actualizarEstado(\'' + pedido.id + '\', \'entregado\')">Marcar Entregado</button>',
                 'entregado': '<span style="color: #66BB6A;">Pedido completado</span>',
                 'cancelado': '<span style="color: #EF5350;">Pedido cancelado</span>'
             };
-            return acciones[pedido.estado] || '';
+            return acciones[pedido.estado.toLowerCase()] || '';
         }
 
-        async function actualizarEstado(pedidoId, nuevoEstado) {
-            if (!confirm(`¿Cambiar estado a ${formatearEstado(nuevoEstado)}?`)) return;
+        async function confirmarPago(pedidoId, numeroPedido) {
+            if (!confirm('Confirmar que el pago fue recibido? Se enviara notificacion al cliente.')) return;
             
             try {
                 const { error } = await supabaseClient
                     .from('pedidos')
                     .update({
-                        estado: nuevoEstado,
-                        updated_at: new Date().toISOString()
+                        estado: 'pago_confirmado'
+                    })
+                    .eq('id', pedidoId);
+                
+                if (error) throw error;
+                
+                alert('Pago confirmado exitosamente para ' + (numeroPedido || 'pedido'));
+                cargarPedidos();
+                
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarError('Error al confirmar el pago: ' + error.message);
+            }
+        }
+
+        async function actualizarEstado(pedidoId, nuevoEstado) {
+            if (!confirm(`Cambiar estado a ${formatearEstado(nuevoEstado)}?`)) return;
+            
+            try {
+                const { error } = await supabaseClient
+                    .from('pedidos')
+                    .update({
+                        estado: nuevoEstado
                     })
                     .eq('id', pedidoId);
                 
