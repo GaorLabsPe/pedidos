@@ -648,9 +648,11 @@
         let userRole = null;
         let autoRefreshInterval = null;
 
-        function cambiarTab(tab) {
+        function cambiarTab(tab, element) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            event.target.classList.add('active');
+            if (element) {
+                element.classList.add('active');
+            }
             
             if (tab === 'login') {
                 document.getElementById('loginTab').style.display = 'block';
