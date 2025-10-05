@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard de Pedidos</title>
+    <title>Dashboard de Pedidos - Sistema Multi-Usuario</title>
     <style>
         * {
             margin: 0;
@@ -32,7 +32,7 @@
             padding: 40px;
             border-radius: 20px;
             border: 1px solid rgba(255,255,255,0.2);
-            max-width: 400px;
+            max-width: 450px;
             width: 100%;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
@@ -57,7 +57,7 @@
             font-weight: 600;
         }
         
-        .form-group input {
+        .form-group input, .form-group select {
             width: 100%;
             padding: 12px 15px;
             border-radius: 8px;
@@ -67,7 +67,7 @@
             font-size: 1em;
         }
         
-        .form-group input:focus {
+        .form-group input:focus, .form-group select:focus {
             outline: none;
             border-color: #6B4423;
         }
@@ -98,13 +98,35 @@
             cursor: not-allowed;
         }
         
-        .error-message {
+        .btn-secondary {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .btn-danger {
             background: #EF5350;
             color: white;
+        }
+        
+        .error-message, .success-message {
             padding: 12px;
             border-radius: 8px;
             margin-bottom: 20px;
             display: none;
+        }
+        
+        .error-message {
+            background: #EF5350;
+            color: white;
+        }
+        
+        .success-message {
+            background: #66BB6A;
+            color: white;
         }
         
         .header {
@@ -125,34 +147,31 @@
             margin-bottom: 5px;
         }
         
-        .header-left p {
-            opacity: 0.9;
-            font-size: 1.1em;
-        }
-        
         .header-right {
             display: flex;
             align-items: center;
             gap: 15px;
         }
         
-        .user-info {
-            text-align: right;
-        }
-        
-        .user-email {
-            font-size: 0.9em;
-            opacity: 0.8;
-        }
-        
-        .btn-logout {
+        .user-badge {
             background: rgba(255,255,255,0.2);
-            color: white;
-            padding: 10px 20px;
+            padding: 8px 15px;
+            border-radius: 8px;
         }
         
-        .btn-logout:hover {
-            background: rgba(255,255,255,0.3);
+        .role-badge {
+            background: #FFA726;
+            color: #000;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        
+        .role-badge.admin {
+            background: #E91E63;
+            color: white;
         }
         
         .stats {
@@ -257,11 +276,6 @@
             color: #FFA726;
         }
         
-        .pedido-fecha {
-            font-size: 0.95em;
-            opacity: 0.8;
-        }
-        
         .badge {
             padding: 8px 16px;
             border-radius: 20px;
@@ -321,21 +335,6 @@
             margin-top: 15px;
         }
         
-        .alerta-pago {
-            background: rgba(255, 152, 0, 0.2);
-            border: 2px solid #FF9800;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .alerta-pago-icon {
-            font-size: 1.5em;
-        }
-        
         .acciones {
             display: flex;
             gap: 10px;
@@ -385,15 +384,71 @@
             100% { transform: rotate(360deg); }
         }
         
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            opacity: 0.6;
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(5px);
         }
         
-        .empty-state-icon {
-            font-size: 4em;
+        .modal-content {
+            background: #2d2d2d;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 20px;
+        }
+        
+        .close {
+            font-size: 2em;
+            cursor: pointer;
+            color: #fff;
+        }
+        
+        .usuarios-list {
+            margin-top: 20px;
+        }
+        
+        .usuario-item {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            background: #6B4423;
         }
         
         @media (max-width: 768px) {
@@ -417,35 +472,53 @@
         <div class="login-box">
             <div class="login-header">
                 <h1>Dashboard de Pedidos</h1>
-                <p>Inicia sesion para continuar</p>
+                <p>Sistema Multi-Usuario</p>
             </div>
             
             <div id="loginError" class="error-message"></div>
+            <div id="loginSuccess" class="success-message"></div>
             
-            <div id="configForm">
-                <div class="form-group">
-                    <label>URL del Proyecto Supabase:</label>
-                    <input type="text" id="supabaseUrl" placeholder="https://tu-proyecto.supabase.co">
-                </div>
-                <div class="form-group">
-                    <label>API Key (Anon):</label>
-                    <input type="password" id="supabaseKey" placeholder="Tu API key de Supabase">
-                </div>
-                <button class="btn btn-primary" onclick="guardarConfiguracion()">Guardar Configuracion</button>
-                <hr style="margin: 20px 0; border-color: rgba(255,255,255,0.2);">
+            <div class="tabs">
+                <div class="tab active" onclick="cambiarTab('login')">Iniciar Sesion</div>
+                <div class="tab" onclick="cambiarTab('setup')">Configuracion Admin</div>
             </div>
             
-            <form id="loginForm" onsubmit="handleLogin(event)" style="display: none;">
-                <div class="form-group">
-                    <label>Email:</label>
-                    <input type="email" id="loginEmail" required placeholder="tu@email.com">
-                </div>
-                <div class="form-group">
-                    <label>Contrasena:</label>
-                    <input type="password" id="loginPassword" required placeholder="Tu contrasena">
-                </div>
-                <button type="submit" class="btn btn-primary" id="loginBtn">Iniciar Sesion</button>
-            </form>
+            <div id="loginTab">
+                <form id="loginForm" onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label>Email:</label>
+                        <input type="email" id="loginEmail" required placeholder="tu@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Contrasena:</label>
+                        <input type="password" id="loginPassword" required placeholder="Tu contrasena">
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="loginBtn">Iniciar Sesion</button>
+                </form>
+            </div>
+            
+            <div id="setupTab" style="display: none;">
+                <p style="margin-bottom: 20px; opacity: 0.8;">Solo para administradores. Configura las credenciales de Supabase una sola vez.</p>
+                <form id="setupForm" onsubmit="handleSetup(event)">
+                    <div class="form-group">
+                        <label>URL del Proyecto Supabase:</label>
+                        <input type="text" id="supabaseUrl" placeholder="https://tu-proyecto.supabase.co">
+                    </div>
+                    <div class="form-group">
+                        <label>API Key (Anon):</label>
+                        <input type="password" id="supabaseKey" placeholder="Tu API key de Supabase">
+                    </div>
+                    <div class="form-group">
+                        <label>Email Admin:</label>
+                        <input type="email" id="adminEmail" placeholder="admin@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Contrasena Admin:</label>
+                        <input type="password" id="adminPassword" placeholder="Minimo 6 caracteres">
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="setupBtn">Configurar Sistema</button>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -453,13 +526,15 @@
         <div class="header">
             <div class="header-left">
                 <h1>Dashboard de Pedidos</h1>
-                <p>Gestion en tiempo real de pedidos de Cafe Premium</p>
+                <p>Gestion en tiempo real</p>
             </div>
             <div class="header-right">
-                <div class="user-info">
-                    <div class="user-email" id="userEmail"></div>
+                <div class="user-badge">
+                    <span id="userEmail"></span>
+                    <span id="userRole" class="role-badge"></span>
                 </div>
-                <button class="btn btn-logout" onclick="handleLogout()">Cerrar Sesion</button>
+                <button class="btn btn-secondary" onclick="abrirGestionUsuarios()" id="btnUsuarios" style="display: none;">Gestionar Usuarios</button>
+                <button class="btn btn-secondary" onclick="handleLogout()">Cerrar Sesion</button>
             </div>
         </div>
 
@@ -502,7 +577,7 @@
             
             <div class="filter-group">
                 <label>Buscar:</label>
-                <input type="text" id="buscar" placeholder="Nombre, telefono, numero pedido..." onkeyup="cargarPedidos()">
+                <input type="text" id="buscar" placeholder="Nombre, telefono..." onkeyup="cargarPedidos()">
             </div>
             
             <button class="btn btn-primary" onclick="cargarPedidos()">Actualizar</button>
@@ -516,41 +591,134 @@
         <div id="pedidosContainer" class="pedidos-grid"></div>
     </div>
 
+    <div id="modalUsuarios" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Gestion de Usuarios</h2>
+                <span class="close" onclick="cerrarModal()">&times;</span>
+            </div>
+            
+            <div id="modalError" class="error-message"></div>
+            <div id="modalSuccess" class="success-message"></div>
+            
+            <h3>Crear Nuevo Usuario</h3>
+            <form id="crearUsuarioForm" onsubmit="crearUsuario(event)">
+                <div class="form-group">
+                    <label>Email:</label>
+                    <input type="email" id="nuevoEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>Contrasena:</label>
+                    <input type="password" id="nuevaPassword" required minlength="6">
+                </div>
+                <div class="form-group">
+                    <label>Nombre Completo:</label>
+                    <input type="text" id="nuevoNombre" required>
+                </div>
+                <div class="form-group">
+                    <label>Rol:</label>
+                    <select id="nuevoRol">
+                        <option value="operador">Operador</option>
+                        <option value="admin">Administrador</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Crear Usuario</button>
+            </form>
+            
+            <h3 style="margin-top: 30px;">Usuarios Activos</h3>
+            <div id="usuariosList" class="usuarios-list"></div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         let supabaseClient = null;
         let currentUser = null;
+        let userRole = null;
         let autoRefreshInterval = null;
 
-        function mostrarError(mensaje) {
-            const errorDiv = document.getElementById('loginError');
-            errorDiv.textContent = mensaje;
-            errorDiv.style.display = 'block';
-            setTimeout(() => {
-                errorDiv.style.display = 'none';
-            }, 5000);
+        function cambiarTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (tab === 'login') {
+                document.getElementById('loginTab').style.display = 'block';
+                document.getElementById('setupTab').style.display = 'none';
+            } else {
+                document.getElementById('loginTab').style.display = 'none';
+                document.getElementById('setupTab').style.display = 'block';
+            }
         }
 
-        function guardarConfiguracion() {
+        function mostrarMensaje(id, mensaje, tipo = 'error') {
+            const el = document.getElementById(id);
+            el.textContent = mensaje;
+            el.style.display = 'block';
+            setTimeout(() => el.style.display = 'none', 5000);
+        }
+
+        async function handleSetup(event) {
+            event.preventDefault();
+            
             const url = document.getElementById('supabaseUrl').value.trim();
             const key = document.getElementById('supabaseKey').value.trim();
+            const email = document.getElementById('adminEmail').value.trim();
+            const password = document.getElementById('adminPassword').value;
             
-            if (!url || !key) {
-                mostrarError('Por favor completa todos los campos');
-                return;
+            const setupBtn = document.getElementById('setupBtn');
+            setupBtn.disabled = true;
+            setupBtn.textContent = 'Configurando...';
+            
+            try {
+                const tempClient = supabase.createClient(url, key);
+                
+                const { data, error } = await tempClient.auth.signUp({
+                    email: email,
+                    password: password,
+                    options: {
+                        data: {
+                            nombre_completo: 'Administrador Principal',
+                            rol: 'admin'
+                        }
+                    }
+                });
+                
+                if (error) throw error;
+                
+                const configData = {
+                    url: url,
+                    key: key,
+                    configured: true,
+                    configuredAt: new Date().toISOString()
+                };
+                
+                localStorage.setItem('supabase_config', JSON.stringify(configData));
+                
+                mostrarMensaje('loginSuccess', 'Sistema configurado. Ya puedes iniciar sesion con tu cuenta admin.', 'success');
+                
+                document.getElementById('setupForm').reset();
+                cambiarTab('login');
+                
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarMensaje('loginError', error.message || 'Error en la configuracion');
+            } finally {
+                setupBtn.disabled = false;
+                setupBtn.textContent = 'Configurar Sistema';
             }
-            
-            localStorage.setItem('supabase_url', url);
-            localStorage.setItem('supabase_key', key);
-            
-            supabaseClient = supabase.createClient(url, key);
-            
-            document.getElementById('configForm').style.display = 'none';
-            document.getElementById('loginForm').style.display = 'block';
         }
 
         async function handleLogin(event) {
             event.preventDefault();
+            
+            const config = JSON.parse(localStorage.getItem('supabase_config') || '{}');
+            
+            if (!config.configured) {
+                mostrarMensaje('loginError', 'El sistema no esta configurado. Contacta al administrador.');
+                return;
+            }
+            
+            supabaseClient = supabase.createClient(config.url, config.key);
             
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
@@ -568,11 +736,13 @@
                 if (error) throw error;
                 
                 currentUser = data.user;
+                userRole = data.user.user_metadata.rol || 'operador';
+                
                 mostrarDashboard();
                 
             } catch (error) {
-                console.error('Error de login:', error);
-                mostrarError(error.message || 'Error al iniciar sesion');
+                console.error('Error:', error);
+                mostrarMensaje('loginError', error.message || 'Error al iniciar sesion');
             } finally {
                 loginBtn.disabled = false;
                 loginBtn.textContent = 'Iniciar Sesion';
@@ -583,12 +753,13 @@
             try {
                 await supabaseClient.auth.signOut();
                 currentUser = null;
+                userRole = null;
                 if (autoRefreshInterval) clearInterval(autoRefreshInterval);
                 document.getElementById('loginScreen').style.display = 'flex';
                 document.getElementById('dashboardContent').style.display = 'none';
                 document.getElementById('loginForm').reset();
             } catch (error) {
-                console.error('Error al cerrar sesion:', error);
+                console.error('Error:', error);
             }
         }
 
@@ -596,6 +767,13 @@
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('dashboardContent').style.display = 'block';
             document.getElementById('userEmail').textContent = currentUser.email;
+            document.getElementById('userRole').textContent = userRole.toUpperCase();
+            document.getElementById('userRole').className = `role-badge ${userRole}`;
+            
+            if (userRole === 'admin') {
+                document.getElementById('btnUsuarios').style.display = 'block';
+            }
+            
             cargarPedidos();
             iniciarAutoRefresh();
         }
@@ -637,21 +815,12 @@
                     );
                 }
                 
-                // DEBUG: Ver datos de pedidos
-                console.log("📦 Pedidos cargados:", pedidosFiltrados);
-                pedidosFiltrados.forEach(p => {
-                    console.log(`Pedido ${p.id}:`, { 
-                        numero_pedido: p.numero_pedido,
-                        estado: p.estado
-                    });
-                });
-                
                 actualizarEstadisticas(pedidosFiltrados);
                 mostrarPedidos(pedidosFiltrados);
                 
             } catch (error) {
                 console.error('Error:', error);
-                mostrarError('Error al cargar los pedidos: ' + error.message);
+                mostrarMensaje('loginError', 'Error al cargar pedidos');
             } finally {
                 document.getElementById('loading').style.display = 'none';
             }
@@ -678,169 +847,4 @@
             const container = document.getElementById('pedidosContainer');
             
             if (pedidos.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">📦</div>
-                        <h3>No hay pedidos</h3>
-                        <p>Los nuevos pedidos apareceran aqui</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            container.innerHTML = pedidos.map(pedido => `
-                <div class="pedido-card">
-                    <div class="pedido-header">
-                        <div>
-                            <div class="pedido-id">
-                                ${pedido.numero_pedido ? pedido.numero_pedido : 'Pedido #' + pedido.id.substring(0, 8)}
-                                ${!pedido.numero_pedido ? '<small style="opacity: 0.6; display: block; font-size: 0.8em;">(Sin número asignado)</small>' : ''}
-                            </div>
-                            <div class="pedido-fecha">${new Date(pedido.fecha_pedido).toLocaleString('es-PE')}</div>
-                        </div>
-                        <span class="badge badge-${pedido.estado}">${formatearEstado(pedido.estado)}</span>
-                    </div>
-                    
-                    ${pedido.estado === 'pendiente_pago' ? `
-                    <div class="alerta-pago">
-                        <div class="alerta-pago-icon">💰</div>
-                        <div>
-                            <strong>Esperando confirmacion de pago</strong><br>
-                            <small>El cliente debe enviar comprobante de pago</small>
-                        </div>
-                    </div>
-                    ` : ''}
-                    
-                    <div class="cliente-info">
-                        <div class="info-row">
-                            <span class="info-label">Cliente:</span>
-                            <span>${pedido.nombre_cliente}</span>
-                        </div>
-                        <div class="info-row">
-                            <span class="info-label">Telefono:</span>
-                            <span>${pedido.telefono_cliente}</span>
-                        </div>
-                        ${pedido.email_cliente ? `
-                        <div class="info-row">
-                            <span class="info-label">Email:</span>
-                            <span>${pedido.email_cliente}</span>
-                        </div>
-                        ` : ''}
-                        <div class="info-row">
-                            <span class="info-label">Direccion:</span>
-                            <span>${pedido.direccion}</span>
-                        </div>
-                    </div>
-                    
-                    <div class="productos-list">
-                        <strong>Productos (${pedido.cantidad_items} items):</strong>
-                        ${pedido.productos.map(prod => `
-                            <div class="producto-item">
-                                ${prod.cantidad}x ${prod.producto} - S/ ${prod.subtotal.toFixed(2)}
-                            </div>
-                        `).join('')}
-                    </div>
-                    
-                    <div class="pedido-total">Total: S/ ${parseFloat(pedido.total).toFixed(2)}</div>
-                    
-                    <div class="acciones">
-                        ${generarBotonesAccion(pedido)}
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function formatearEstado(estado) {
-            const estados = {
-                'pendiente_pago': 'Esperando Pago',
-                'pago_confirmado': 'Pago Confirmado',
-                'en_preparacion': 'En Preparación',
-                'enviado': 'Enviado',
-                'entregado': 'Entregado',
-                'cancelado': 'Cancelado'
-            };
-            // Convertir a minúsculas para manejar PENDIENTE_PAGO, etc.
-            return estados[estado.toLowerCase()] || estado;
-        }
-
-        function generarBotonesAccion(pedido) {
-            const acciones = {
-                'pendiente_pago': '<button class="btn-accion btn-confirmar-pago" onclick="confirmarPago(\'' + pedido.id + '\', \'' + pedido.numero_pedido + '\')">Confirmar Pago</button><button class="btn-accion btn-cancelar" onclick="actualizarEstado(\'' + pedido.id + '\', \'cancelado\')">Cancelar</button>',
-                'pago_confirmado': '<button class="btn-accion btn-preparar" onclick="actualizarEstado(\'' + pedido.id + '\', \'en_preparacion\')">Preparar Pedido</button>',
-                'en_preparacion': '<button class="btn-accion btn-enviar" onclick="actualizarEstado(\'' + pedido.id + '\', \'enviado\')">Enviar Pedido</button>',
-                'enviado': '<button class="btn-accion btn-entregar" onclick="actualizarEstado(\'' + pedido.id + '\', \'entregado\')">Marcar Entregado</button>',
-                'entregado': '<span style="color: #66BB6A;">Pedido completado</span>',
-                'cancelado': '<span style="color: #EF5350;">Pedido cancelado</span>'
-            };
-            return acciones[pedido.estado.toLowerCase()] || '';
-        }
-
-        async function confirmarPago(pedidoId, numeroPedido) {
-            if (!confirm('Confirmar que el pago fue recibido? Se enviara notificacion al cliente.')) return;
-            
-            try {
-                const { error } = await supabaseClient
-                    .from('pedidos')
-                    .update({
-                        estado: 'pago_confirmado'
-                    })
-                    .eq('id', pedidoId);
-                
-                if (error) throw error;
-                
-                alert('Pago confirmado exitosamente para ' + (numeroPedido || 'pedido'));
-                cargarPedidos();
-                
-            } catch (error) {
-                console.error('Error:', error);
-                mostrarError('Error al confirmar el pago: ' + error.message);
-            }
-        }
-
-        async function actualizarEstado(pedidoId, nuevoEstado) {
-            if (!confirm(`Cambiar estado a ${formatearEstado(nuevoEstado)}?`)) return;
-            
-            try {
-                const { error } = await supabaseClient
-                    .from('pedidos')
-                    .update({
-                        estado: nuevoEstado
-                    })
-                    .eq('id', pedidoId);
-                
-                if (error) throw error;
-                
-                cargarPedidos();
-                
-            } catch (error) {
-                console.error('Error:', error);
-                mostrarError('Error al actualizar el estado: ' + error.message);
-            }
-        }
-
-        async function inicializarApp() {
-            const urlGuardada = localStorage.getItem('supabase_url');
-            const keyGuardada = localStorage.getItem('supabase_key');
-            
-            if (urlGuardada && keyGuardada) {
-                document.getElementById('supabaseUrl').value = urlGuardada;
-                document.getElementById('supabaseKey').value = keyGuardada;
-                
-                supabaseClient = supabase.createClient(urlGuardada, keyGuardada);
-                
-                const { data: { session } } = await supabaseClient.auth.getSession();
-                
-                if (session) {
-                    currentUser = session.user;
-                    mostrarDashboard();
-                } else {
-                    document.getElementById('configForm').style.display = 'none';
-                    document.getElementById('loginForm').style.display = 'block';
-                }
-            }
-        }
-
-        inicializarApp();
-    </script>
-</body>
-</html>
+                container.innerHTML = '<div style="text-align: center
